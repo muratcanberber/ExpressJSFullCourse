@@ -16,36 +16,38 @@ const mockUsers = [
 
 //REQUESTS
 
-app.get("/", (req, res) => {
-  res.status(201).send({ msg: "hello" });
+app.get("/", (request, response) => {
+  response.status(201).send({ msg: "hello" });
 });
-
-app.get("/api/users/", (req, res) => {
-  console.log(req.query);
+app.get("/api/users/", (request, response) => {
+  console.log(request.query);
   const {
     query: { filter, value },
-  } = req;
-
-  if (!filter && !value) return response.send(mockUsers);
-  res.send(mockUsers);
+  } = request;
+  if (filter && value) {
+    return response.send(
+      mockUsers.filter((user) => user[filter].includes(value))
+    );
+  }
+  return response.send(mockUsers);
 });
 
-app.get("/api/users/:id", (req, res) => {
-  console.log(req.params);
-  const parsedID = parseInt(req.params.id);
+app.get("/api/users/:id", (request, response) => {
+  console.log(request.params);
+  const parsedID = parseInt(request.params.id);
   if (isNaN(parsedID)) {
-    return res.status(400).send({ msg: "Bad Request. Invalid ID" });
+    return response.status(400).send({ msg: "Bad Request. Invalid ID" });
   }
 
   const findUser = mockUsers.find((user) => user.id === parsedID);
-  if (!findUser) return res.sendStatus(404);
-  return res.send(findUser);
+  if (!findUser) return response.sendStatus(404);
+  return response.send(findUser);
 });
 
-app.get("/api/products", (req, res) => {
+app.get("/api/products", (request, response) => {
   const products = [{ id: 1, name: "Chicken Breast", price: 12.99 }];
 
-  res.send(products);
+  response.send(products);
 });
 
 app.listen(PORT, () => {
